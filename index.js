@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { testRouter } = require("./routers/testRouter");
+const ProductRouter = require("./routers/ProductRouter");
+
 
 
 const app = express();
@@ -17,6 +19,7 @@ app.use("/hello", (req, res) => {
 });
 
 app.use('/test', testRouter)
+app.use('/api/v1/product', ProductRouter)
 
 
 

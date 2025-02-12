@@ -11,4 +11,5 @@ const BrandSchema= mongoose.Schema({
 
 const BrandModel= mongoose.model("brands", BrandSchema)
 
+
 module.exports= BrandModel
