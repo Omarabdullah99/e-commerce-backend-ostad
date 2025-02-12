@@ -1,5 +1,7 @@
 const BrandModel = require("../models/productRelatedModel/BrandModel")
+const CategoriesModel = require("../models/productRelatedModel/CategoriesModel")
 
+//------------------brands related function start----------------
 const createBrandList= async(req,res)=>{
     let data= req.body
     console.log('branddata',data)
@@ -21,4 +23,28 @@ const getBrandList= async(req,res)=>{
     }
 }
 
-module.exports={createBrandList,getBrandList}
+//------------------brands related function end----------------
+
+//------------------category related function start----------------
+const createCategory= async(req,res)=>{
+    let data= req.body
+    console.log('branddata',data)
+    try {
+        let result= await CategoriesModel.create(data)
+        res.status(201).json(result)
+        
+    } catch (error) {
+        res.status(400).json(error)
+    }
+}
+
+const getCategories= async(req,res)=>{
+    try {
+     const result= await   CategoriesModel.find()
+     res.status(200).json(result)
+    } catch (error) {
+        res.status(400).json(error)
+    }
+}
+
+module.exports={createBrandList,getBrandList,createCategory,getCategories}
