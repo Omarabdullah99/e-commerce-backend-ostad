@@ -210,27 +210,27 @@ const ListByCategory = async (req, res) => {
   }
 };
 
-const ListByRemark= async(req,res)=>{
+const ListByRemark = async (req, res) => {
   try {
-    const Remark= req.params.Remark
+    const Remark = req.params.Remark;
 
-    let MatchStage={$match:{remark:Remark}}
-    let JoinWithBrandStage={
-      $lookup:{
-        from:"brands",
-        localField:"brandID",
-        foreignField:"_id",
-        as:"brand"
-      }
-    }
-    let JoinWithCategoryStage={
-      $lookup:{
-        from:"categories",
-        localField:"categoryID",
-        foreignField:"_id",
-        as:"category"
-      }
-    }
+    let MatchStage = { $match: { remark: Remark } };
+    let JoinWithBrandStage = {
+      $lookup: {
+        from: "brands",
+        localField: "brandID",
+        foreignField: "_id",
+        as: "brand",
+      },
+    };
+    let JoinWithCategoryStage = {
+      $lookup: {
+        from: "categories",
+        localField: "categoryID",
+        foreignField: "_id",
+        as: "category",
+      },
+    };
 
     let unwindBrandStage = {
       $unwind: {
@@ -245,21 +245,82 @@ const ListByRemark= async(req,res)=>{
       },
     };
 
-    let ProjectionStage={$project: { "brand._id": 0, "category._id": 0 }}
+    let ProjectionStage = { $project: { "brand._id": 0, "category._id": 0 } };
     let data = await ProductModel.aggregate([
-      MatchStage, JoinWithBrandStage, JoinWithCategoryStage,
-      unwindBrandStage,unwindCategoryStage,
-      ProjectionStage
-      
-    ])
+      MatchStage,
+      JoinWithBrandStage,
+      JoinWithCategoryStage,
+      unwindBrandStage,
+      unwindCategoryStage,
+      ProjectionStage,
+    ]);
 
-    res.status(200).json(data)
-    
+    res.status(200).json(data);
   } catch (error) {
     res.status(400).json(error);
-    
   }
-}
+};
+
+const ProductListBySimilar = async (req, res) => {
+  try {
+    const CategoryID = req.params.CategoryID;
+    // Check if BrandID is a valid ObjectId
+    if (!mongoose.isValidObjectId(CategoryID)) {
+      return res.status(400).json({ error: "Invalid BrandID format" });
+    }
+
+    let matchStage = {
+      $match: { categoryID: new mongoose.Types.ObjectId(CategoryID) },
+    };
+
+    let LimitStage = { $limit: 10 };
+    let JoinWithBrandStage = {
+      $lookup: {
+        from: "brands",
+        localField: "brandID",
+        foreignField: "_id",
+        as: "brand",
+      },
+    };
+
+    let JoinWithCategoryStage = {
+      $lookup: {
+        from: "categories",
+        localField: "categoryID",
+        foreignField: "_id",
+        as: "category",
+      },
+    };
+
+    let unwindBrandStage = {
+      $unwind: {
+        path: "$brand",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+    let unwindCategoryStage = {
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+
+    let ProjectionStage = { $project: { "brand._id": 0, "category._id": 0 } };
+
+    let data = await ProductModel.aggregate([
+      matchStage,
+      LimitStage,
+      JoinWithBrandStage,
+      JoinWithCategoryStage,
+      unwindBrandStage,
+      unwindCategoryStage,
+      ProjectionStage,
+    ]);
+    res.status(200).json(data)
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
 //------------------Product related function end----------------
 module.exports = {
   createBrandList,
@@ -272,5 +333,6 @@ module.exports = {
   getAllProducts,
   ListByBrand,
   ListByCategory,
-  ListByRemark
+  ListByRemark,
+  ProductListBySimilar,
 };
