@@ -105,11 +105,40 @@ const ListByBrand = async (req, res) => {
           from: "brands",
           localField: "brandID",
           foreignField: "_id",
-          as: "brandDetails",
+          as: "brand",
         },
       };
-  
-      let data = await ProductModel.aggregate([matchStage, JoinWithBrandStage]);
+      
+      let JoinWithCategoryStage = {
+        $lookup: {
+          from: "categories",
+          localField: "categoryID",
+          foreignField: "_id",
+          as: "category",
+        },
+      };
+
+      let unwindBrandStage = { 
+        $unwind: { 
+          path: "$brand", 
+          preserveNullAndEmptyArrays: true 
+        } 
+      };
+      let unwindCategoryStage = { 
+        $unwind: { 
+          path: "$category", 
+          preserveNullAndEmptyArrays: true 
+        } 
+      };
+
+      let ProjectionStage={$project:{'brand._id':0, 'category._id':0}}
+
+      let data = await ProductModel.aggregate([
+        matchStage, JoinWithBrandStage, JoinWithCategoryStage,
+        unwindBrandStage, unwindCategoryStage,
+        ProjectionStage
+      
+      ]);
   
       res.status(200).json(data);
     } catch (error) {
@@ -129,3 +158,6 @@ module.exports = {
   getAllProducts,
   ListByBrand
 };
+
+
+
