@@ -11,6 +11,6 @@ const ReviewSchema= mongoose.Schema({
 )
 
 
-const ReviewModel= mongoose.model("wishes", ReviewSchema)
+const ReviewModel= mongoose.model("reviews", ReviewSchema)
 
 module.exports= ReviewModel

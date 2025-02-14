@@ -1,4 +1,5 @@
 const ProfileModel = require("../models/userRelatedModel/ProfileModel")
+const ReviewModel = require("../models/userRelatedModel/ReviewModel")
 const UserModel = require("../models/userRelatedModel/UsersModel")
 
 
@@ -23,6 +24,7 @@ const GetAllUsers= async(req,res)=>{
     }
 }
 
+
 const CreateProfileUser= async(req,res)=>{
     try {
         let data= req.body;
@@ -45,7 +47,29 @@ const GetAllProfileUser= async(req,res)=>{
 }
 
 
+const CreateReview= async(req,res)=>{
+    try {
+        let data= req.body
+        const  result= await ReviewModel.create(data)
+        res.status(201).json(result)
+        
+    } catch (error) {
+        res.status(400).json(error)
+    }
+}
+
+
+const GetAllReviews= async(req,res)=>{
+    try {
+        const result= await ReviewModel.find()
+        res.status(200).json(result)
+        
+    } catch (error) {
+        res.status(400).json(error)
+    }
+}
+
 //------------------users related function end----------------
 
 
-module.exports={CreateUser,GetAllUsers,CreateProfileUser,GetAllProfileUser}
+module.exports={CreateUser,GetAllUsers,CreateProfileUser,GetAllProfileUser,CreateReview,GetAllReviews}
