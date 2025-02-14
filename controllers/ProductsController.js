@@ -419,6 +419,57 @@ const GetProductDetailsById = async (req, res) => {
   }
 };
 
+const GetProductListByKeyword=async(req,res)=>{
+  try {
+    let SearchRegex= {"$regex":req.params.keyword, "$options": "i"}
+    let SearchParams=[{title:SearchRegex}, {shortDes:SearchRegex}]
+    let SearchQuery= {$or: SearchParams}
+
+    let MatchStage= {$match:SearchQuery}
+    
+    let JoinWithBrandStage = {
+      $lookup: {
+        from: "brands",
+        localField: "brandID",
+        foreignField: "_id",
+        as: "brand",
+      },
+    };
+
+    let JoinWithCategoryStage = {
+      $lookup: {
+        from: "categories",
+        localField: "categoryID",
+        foreignField: "_id",
+        as: "category",
+      },
+    };
+
+    let unwindBrandStage = {
+      $unwind: {
+        path: "$brand",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+    let unwindCategoryStage = {
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+
+    let ProjectionStage = { $project: { "brand._id": 0, "category._id": 0 } };
+    let data= await ProductModel.aggregate([
+      MatchStage,
+      JoinWithBrandStage,unwindBrandStage,
+      JoinWithCategoryStage, unwindCategoryStage,
+      ProjectionStage
+    ])
+    res.status(200).json(data)
+  } catch (error) {
+    res.status(400).json(error);
+  }
+}
 //------------------Product related function end----------------
 module.exports = {
   createBrandList,
@@ -436,4 +487,5 @@ module.exports = {
   CreateProductDetails,
   getAllDetails,
   GetProductDetailsById,
+  GetProductListByKeyword
 };
