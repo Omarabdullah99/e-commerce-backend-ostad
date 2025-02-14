@@ -3,6 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const { testRouter } = require("./routers/testRouter");
 const ProductRouter = require("./routers/ProductRouter");
+const UserRouter = require("./routers/UserRouter");
 
 
 
@@ -20,6 +21,7 @@ app.use("/hello", (req, res) => {
 
 app.use('/test', testRouter)
 app.use('/api/v1/product', ProductRouter)
+app.use('/api/v1/user', UserRouter)
 
 
 
