@@ -1,5 +1,6 @@
 const BrandModel = require("../models/productRelatedModel/BrandModel");
 const CategoriesModel = require("../models/productRelatedModel/CategoriesModel");
+const ProductDetailsModel = require("../models/productRelatedModel/ProductDetails");
 const ProductModel = require("../models/productRelatedModel/ProductModel");
 const ProductSliderModel = require("../models/productRelatedModel/ProductSlider");
 const mongoose = require("mongoose");
@@ -316,11 +317,108 @@ const ProductListBySimilar = async (req, res) => {
       unwindCategoryStage,
       ProjectionStage,
     ]);
-    res.status(200).json(data)
+    res.status(200).json(data);
   } catch (error) {
     res.status(400).json(error);
   }
 };
+
+const CreateProductDetails = async (req, res) => {
+  const data = req.body;
+  try {
+    const result = await ProductDetailsModel.create(data);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
+const getAllDetails= async(req,res)=>{
+  try {
+    let data = await ProductDetailsModel.find()
+    res.status(200).json(data)
+    
+  } catch (error) {
+    res.status(400).json(error);
+  }
+}
+
+const GetProductDetailsById = async (req, res) => {
+  try {
+    const ProductId = req.params.ProductId;
+
+    // Check if ProductId is a valid ObjectId
+    if (!mongoose.isValidObjectId(ProductId)) {
+      return res.status(400).json({ error: "Invalid ProductId format" });
+    }
+
+    let MatchStage = {
+      $match: { _id: new mongoose.Types.ObjectId(ProductId) },
+    };
+
+    let JoinWithDetailsStage = {
+      $lookup: {
+        from: "productdetails", // Name of the productDetails collection
+        localField: "_id",
+        foreignField: "productID",
+        as: "details", // Use a unique field name for product details
+      },
+    };
+
+    let JoinWithBrandStage = {
+      $lookup: {
+        from: "brands", // Name of the brands collection
+        localField: "brandID",
+        foreignField: "_id",
+        as: "brand",
+      },
+    };
+
+    let JoinWithCategoryStage = {
+      $lookup: {
+        from: "categories", // Name of the categories collection
+        localField: "categoryID",
+        foreignField: "_id",
+        as: "category",
+      },
+    };
+
+    let unwindDetailsStage = {
+      $unwind: {
+        path: "$details", // Unwind the details field
+        preserveNullAndEmptyArrays: true, // Preserve documents if details are missing
+      },
+    };
+
+    let unwindBrandStage = {
+      $unwind: {
+        path: "$brand",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+
+    let unwindCategoryStage = {
+      $unwind: {
+        path: "$category",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+
+    let data = await ProductModel.aggregate([
+      MatchStage,
+      JoinWithDetailsStage,
+      unwindDetailsStage, // Add this stage to unwind the details
+      JoinWithBrandStage,
+      unwindBrandStage,
+      JoinWithCategoryStage,
+      unwindCategoryStage,
+    ]);
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 //------------------Product related function end----------------
 module.exports = {
   createBrandList,
@@ -335,4 +433,7 @@ module.exports = {
   ListByCategory,
   ListByRemark,
   ProductListBySimilar,
+  CreateProductDetails,
+  getAllDetails,
+  GetProductDetailsById,
 };

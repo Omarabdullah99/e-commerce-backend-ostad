@@ -19,7 +19,7 @@ const ProductDetailsSchema = mongoose.Schema(
 );
 
 const ProductDetailsModel = mongoose.model(
-  "productDetails",
+  "productdetails",
   ProductDetailsSchema
 );
 
