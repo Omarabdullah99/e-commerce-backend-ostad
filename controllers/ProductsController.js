@@ -4,6 +4,7 @@ const ProductDetailsModel = require("../models/productRelatedModel/ProductDetail
 const ProductModel = require("../models/productRelatedModel/ProductModel");
 const ProductSliderModel = require("../models/productRelatedModel/ProductSlider");
 const mongoose = require("mongoose");
+const ReviewModel = require("../models/userRelatedModel/ReviewModel");
 
 //------------------brands related function start----------------
 const createBrandList = async (req, res) => {
@@ -470,6 +471,49 @@ const GetProductListByKeyword=async(req,res)=>{
     res.status(400).json(error);
   }
 }
+
+const GetProductByReviewList=async(req,res)=>{
+  try {
+    const ProductId = req.params.ProductId;
+
+    // Check if ProductId is a valid ObjectId
+    if (!mongoose.isValidObjectId(ProductId)) {
+      return res.status(400).json({ error: "Invalid ProductId format" });
+    }
+
+    let MatchStage = {
+      $match: { productID: new mongoose.Types.ObjectId(ProductId) },
+    };
+
+    let JoinWithUserStage={
+      $lookup:{
+        from:"profiles",
+        localField:"userID",
+        foreignField:"userID",
+        as:"profile"
+      }
+    }
+
+    let unwindUserStage = {
+      $unwind: {
+        path: "$profile",
+        preserveNullAndEmptyArrays: true,
+      },
+    };
+
+    let ProjectionStage={$project:{"des":1, "rating":1, "profile.cus_name":1}}
+
+    let data= await ReviewModel.aggregate([
+      MatchStage,
+      JoinWithUserStage,unwindUserStage,
+      ProjectionStage
+    ])
+
+    res.status(200).json(data)
+  } catch (error) {
+    res.status(400).json(error)
+  }
+}
 //------------------Product related function end----------------
 module.exports = {
   createBrandList,
@@ -487,5 +531,6 @@ module.exports = {
   CreateProductDetails,
   getAllDetails,
   GetProductDetailsById,
-  GetProductListByKeyword
+  GetProductListByKeyword,
+  GetProductByReviewList
 };

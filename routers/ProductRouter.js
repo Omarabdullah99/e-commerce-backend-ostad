@@ -1,5 +1,5 @@
 const express= require('express')
-const { createBrandList, getBrandList, createCategory, getCategories, createProductSlider, getProductSlider, createProduct, getAllProducts, ListByBrand, ListByCategory, ListByRemark, ProductListBySimilar, CreateProductDetails, GetProductDetailsById, getAllDetails, GetProductListByKeyword } = require('../controllers/ProductsController')
+const { createBrandList, getBrandList, createCategory, getCategories, createProductSlider, getProductSlider, createProduct, getAllProducts, ListByBrand, ListByCategory, ListByRemark, ProductListBySimilar, CreateProductDetails, GetProductDetailsById, getAllDetails, GetProductListByKeyword, GetProductByReviewList } = require('../controllers/ProductsController')
 
 const ProductRouter= express.Router()
 
@@ -26,4 +26,6 @@ ProductRouter.get("/getAllDetails",getAllDetails)
 ProductRouter.get('/productDetailsById/:ProductId',GetProductDetailsById)
 
 ProductRouter.get('/productListByKeyword/:keyword',GetProductListByKeyword)
+
+ProductRouter.get('/productByReviewList/:ProductId',GetProductByReviewList)
 module.exports= ProductRouter
