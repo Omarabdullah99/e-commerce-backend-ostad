@@ -3,10 +3,11 @@ const { DecodeToken } = require("../utility/TokenHelper");
 module.exports=(req,res,next)=>{
     let token= req.headers['token']
     if(!token){
-        token= req.headers['token']
+        token= req.cookies['token']
     }
 
     let decoded= DecodeToken(token)
+    console.log('decode verify',decoded)
 
     if(decoded === null){
         return res.status(401).json({status:"fail", message:"Unauthorized"})

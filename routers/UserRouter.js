@@ -1,5 +1,6 @@
 const express= require('express')
-const {  CreateUser, GetAllUsers, CreateProfileUser, GetAllProfileUser, CreateReview, GetAllReviews, UserOTP, LoginOtpVerify } = require('../controllers/UsersController')
+const {  CreateUser, GetAllUsers, CreateProfileUser, GetAllProfileUser, CreateReview, GetAllReviews, UserOTP, LoginOtpVerify, LogOut } = require('../controllers/UsersController')
+const AuthVerification = require('../middleware/AuthVerification')
 
 const UserRouter= express.Router()
 
@@ -16,4 +17,5 @@ UserRouter.get('/getAllReviews',GetAllReviews)
 //otp related api
 UserRouter.get('/userOTP/:email',UserOTP)
 UserRouter.get('/loginOtpVerify/:email/:otp',LoginOtpVerify)
+UserRouter.get('/logout',AuthVerification, LogOut )
 module.exports= UserRouter
