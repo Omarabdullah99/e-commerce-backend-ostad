@@ -24,6 +24,11 @@ app.use('/api/v1/product', ProductRouter)
 app.use('/api/v1/user', UserRouter)
 
 
+app.get('/',(req,res)=>{
+  res.send('hello')
+})
+
+
 
 //mongodb atlas setup
 const MONGODB_URL =

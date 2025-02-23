@@ -501,7 +501,7 @@ const GetProductByReviewList=async(req,res)=>{
       },
     };
 
-    let ProjectionStage={$project:{"des":1, "rating":1, "profile.cus_name":1}}
+    let ProjectionStage={$project:{"des":1, "rating":1, "profile.cus_name":1, "productID":1, "userID":1}}
 
     let data= await ReviewModel.aggregate([
       MatchStage,
