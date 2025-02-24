@@ -34,6 +34,48 @@ const CreateProfileUser = async (req, res) => {
   }
 };
 
+
+const CreateAndUpdateProfile = async (req, res) => {
+  try {
+    let user_id = req.headers.user_id;
+    let reqBody = req.body;
+    reqBody.userID = user_id;
+
+    // Check if profile exists
+    let existingProfile = await ProfileModel.findOne({ userID: user_id });
+
+    if (existingProfile) {
+      // Update the existing profile
+      let updatedProfile = await ProfileModel.findOneAndUpdate(
+        { userID: user_id },
+        { $set: reqBody },
+        { new: true } // Returns updated document
+      );
+      res.status(200).json({
+        status: "success",
+        message: "Profile updated successfully",
+        data: updatedProfile
+      });
+    } else {
+      // Create a new profile
+      let newProfile = new ProfileModel(reqBody);
+      await newProfile.save();
+      res.status(201).json({
+        status: "success",
+        message: "Profile created successfully",
+        data: newProfile
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+
 const GetAllProfileUser = async (req, res) => {
   try {
     const result = await ProfileModel.find();
@@ -42,6 +84,16 @@ const GetAllProfileUser = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
+const GetProfileByUserId= async(req,res)=>{
+  try {
+    let user_id= req.headers.user_id;
+    let result= await ProfileModel.findOne({userID: user_id})
+    res.status(200).json(result)
+  } catch (error) {
+    res.status(200).json(error)
+  }
+}
 
 const CreateReview = async (req, res) => {
   try {
@@ -150,7 +202,9 @@ module.exports = {
   CreateUser,
   GetAllUsers,
   CreateProfileUser,
+  CreateAndUpdateProfile,
   GetAllProfileUser,
+  GetProfileByUserId,
   CreateReview,
   GetAllReviews,
   UserOTP,
