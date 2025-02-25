@@ -1,4 +1,5 @@
 const WishListModel = require("../models/userRelatedModel/WishListModel");
+const mongoose = require('mongoose')
 
 const WishTest = (req, res) => {
   res.send("hello wishlist send");
@@ -64,5 +65,62 @@ const DeleteWishList = async (req, res) => {
     res.status(400).json(error);
   }
 };
+ const GetWishListByUserId=async(req,res)=>{
+    try {
+        const UserId= req.headers.user_id
 
-module.exports = { WishTest, CreateAndUpdateWishList,GetAllWishList,DeleteWishList };
+         // Check if userId is a valid ObjectId
+      if (!mongoose.isValidObjectId(UserId)) {
+        return res.status(400).json({ error: "Invalid UserId format" });
+      }
+
+      let MatchStage={
+        $match:{userID: new mongoose.Types.ObjectId(UserId)}
+      }
+
+      let JoinWithUserStage={
+        $lookup:{
+          from:"profiles",
+          localField:"userID",
+          foreignField:"userID",
+          as:"profile"
+        }
+      }
+
+      let JoinWithProductStage={
+        $lookup:{
+          from:"products",
+          localField:"productID",
+          foreignField:"_id",
+          as:"product"
+        }
+      }
+
+      let unwindUserStage = {
+        $unwind: {
+          path: "$profile",
+          preserveNullAndEmptyArrays: true,
+        },
+      };
+
+      let unwindProductStage = {
+        $unwind: {
+          path: "$product",
+          preserveNullAndEmptyArrays: true,
+        },
+      };
+      let data= await WishListModel.aggregate([
+        MatchStage,
+        JoinWithUserStage,unwindUserStage,
+        JoinWithProductStage,unwindProductStage
+     
+      ])
+      res.status(200).json(data)
+
+    } catch (error) {
+        res.status(400).json(error)
+        
+    }
+ }
+
+module.exports = { WishTest, CreateAndUpdateWishList,GetAllWishList,DeleteWishList, GetWishListByUserId };
