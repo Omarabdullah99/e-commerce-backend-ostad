@@ -12,12 +12,12 @@ const CreateAndUpdateWishList = async (req, res) => {
     reqBody.userID = user_id;
 
     // Check if profile exists
-    let existingWishList = await WishListModel.findOne({ userID: user_id });
+    let existingWishList = await WishListModel.findOne({ userID: user_id, productID: reqBody.productID});
 
     if (existingWishList) {
       // Update the existing profile
       let updatedWishList = await WishListModel.findOneAndUpdate(
-        { userID: user_id },
+        { userID: user_id, productID: reqBody.productID },
         { $set: reqBody },
         { new: true } // Returns updated document
       );

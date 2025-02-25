@@ -6,6 +6,7 @@ const ProductRouter = require("./routers/ProductRouter");
 const UserRouter = require("./routers/UserRouter");
 const cookieParser = require("cookie-parser");
 const WishListRouter = require("./routers/WishListRouter");
+const CartListRouter = require("./routers/CartListRouter");
 
 
 
@@ -27,6 +28,7 @@ app.use('/test', testRouter)
 app.use('/api/v1/product', ProductRouter)
 app.use('/api/v1/user', UserRouter)
 app.use('/api/v1/wish', WishListRouter)
+app.use('/api/v1/cart', CartListRouter)
 
 
 app.get('/',(req,res)=>{
